@@ -1,0 +1,9 @@
+services:
+  linebot:
+    build:
+      dockerfile: ./Dockerfile
+    ports:
+      - "5000:5000"
+    container_name: linebot
+    env_file:
+      - ./env/line.env
