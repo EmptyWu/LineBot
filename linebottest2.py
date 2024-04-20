@@ -31,9 +31,7 @@ fdb = firebase.FirebaseApplication(url, None)
 
 secret=os.environ.get("secret","None")    # 你的 Channel Secret
 configuration = Configuration(access_token=os.environ.get("accesstoken","None"))    # 你的 Access Token
-
-Api_client=ApiClient(configuration)
-linebot_api = MessagingApi(Api_client)
+handler = WebhookHandler(secret)
 
 app = Flask(__name__)
 
@@ -48,6 +46,7 @@ def linebot():
       
 
         signature = request.headers['X-Line-Signature']
+        linebot_api = MessagingApi(ApiClient(configuration))
 
         # get request body as text
         body = request.get_data(as_text=True)
