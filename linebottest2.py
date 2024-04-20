@@ -18,12 +18,16 @@ from linebot.v3.webhooks import (
     TextMessageContent
 )
 
+import google.generativeai as genai
 import os,json
 
-from openai import OpenAI
-client = OpenAI(
-    api_key = os.environ.get("OpenAIKey","None")     # 你的 OpenAI API KEY
-)
+# from openai import OpenAI
+# client = OpenAI(
+#     api_key = os.environ.get("OpenAIKey","None")     # 你的 OpenAI API KEY
+# )
+
+genai.configure(api_key = os.environ.get("geminiapi","None"))
+model = genai.GenerativeModel('gemini-pro')
 
 from firebase import firebase
 url = os.environ.get("firebaseurl","None")    # 你的 Firebase Realtime database URL
@@ -80,14 +84,19 @@ def linebot():
                 ai_msg = TextMessage(text='對話歷史紀錄已經清空！')
             else:
                 messages.append({"role":"user","content":msg})  # 如果是一般文字訊息，將訊息添加到歷史紀錄裡
-                response = client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    max_tokens=128,
-                    temperature=0.5,
-                    messages=messages
-                )
-                print(response)
-                ai_msg = response.choices[0].message.content.replace('\n','')  # 移除回應裡的換行符
+                # response = client.chat.completions.create(
+                #     model="gpt-3.5-turbo",
+                #     max_tokens=128,
+                #     temperature=0.5,
+                #     messages=messages
+                # )
+                chat=model.start_chat(history=[])
+                response = chat.send_message(msg)
+                print(response.text)
+                #openai 方式
+                #ai_msg = response.choices[0].message.content.replace('\n','')  # 移除回應裡的換行符
+                # gemini 方式
+                ai_msg = response.text.replace('\n','') 
                 messages.append({"role":"assistant","content":ai_msg})  # 歷史紀錄裡添加回應訊息
                 fdb.put('/','chatgpt',messages)        # 使用非同步的方式紀錄訊息
                 print(ai_msg)

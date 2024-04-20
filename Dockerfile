@@ -6,6 +6,7 @@ ENV secret="你的 Channel Secret"
 ENV accesstoken="你的 Access Token"
 ENV OpenAIKey="你的 OpenAI API KEY"
 ENV firebaseurl="你的 Firebase Realtime database URL"
+ENV geminiapi="你的 Gemini API KEY"
 
 ADD . /app
 

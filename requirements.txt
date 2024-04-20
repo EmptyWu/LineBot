@@ -2,6 +2,7 @@ flask
 #flask_ngrok
 line-bot-sdk
 requests
-openai
+#openai
 gevent
 python-firebase
+google.generativeai
