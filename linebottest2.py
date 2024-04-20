@@ -57,21 +57,28 @@ def linebot():
         tk = json_data['events'][0]['replyToken']            # 回覆的 reply token
         timestamp = json_data['events'][0]['timestamp']      # 訊息時間戳
         msg_type = json_data['events'][0]['message']['type'] # 訊息類型
+        chatgpt = fdb.get('/','chatgpt')                 # 讀取 Firebase 資料庫內容
+
         # 如果是文字訊息
         if msg_type == 'text':
             msg = json_data['events'][0]['message']['text']  # 取出文字內容
             print(msg)
-            chatgpt = fdb.get('/','chatgpt')                 # 讀取 Firebase 資料庫內容
 
             if chatgpt == None:
                 messages = []       # 如果資料庫裡沒有內容，建立空串列
             else:
                 messages = chatgpt  # 如果資料庫裡有內容，設定歷史紀錄為資料庫內容
             print(chatgpt)
-            if msg == '!reset':
+
+            #判斷msg在messages裡有值
+            exists = check_existence(messages, msg)
+            if exists:
+                return 'OK'
+
+            if msg == '!reset' or msg=='清除所有歷史紀錄':
                 fdb.delete('/','chatgpt')    # 如果收到 !reset 的訊息，表示清空資料庫內容
                 #db.collection(u'/').document(u'chat').delete()
-                reply_msg = TextMessage(text='對話歷史紀錄已經清空！')
+                ai_msg = TextMessage(text='對話歷史紀錄已經清空！')
             else:
                 messages.append({"role":"user","content":msg})  # 如果是一般文字訊息，將訊息添加到歷史紀錄裡
                 response = client.chat.completions.create(
@@ -103,6 +110,12 @@ def linebot():
     except:
         print('error')
     return 'OK'
+
+def check_existence(data, target):
+    for item in data:
+        if item['content'] == target and item['role'] == 'user':
+            return True
+    return False
 
 if __name__ == "__main__":
   from gevent import pywsgi
