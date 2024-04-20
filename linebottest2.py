@@ -81,7 +81,7 @@ def linebot():
             else:
                 messages.append({"role":"user","content":msg})  # 如果是一般文字訊息，將訊息添加到歷史紀錄裡
                 response = client.chat.completions.create(
-                    model="text-embedding-3-small",
+                    model="gpt-3.5-turbo",
                     max_tokens=128,
                     temperature=0.5,
                     messages=messages
